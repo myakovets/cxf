@@ -899,6 +899,24 @@ public final class JAXRSUtils {
     }
 
     public static Object createHttpParameterValue(Parameter parameter,
+                                                  Class<?> parameterClass,
+                                                  Type genericParam,
+                                                  Annotation[] paramAnns,
+                                                  Message message,
+                                                  MultivaluedMap<String, String> values,
+                                                  OperationResourceInfo ori) {
+        try {
+            return createHttpParameterValueInternal(parameter, parameterClass, genericParam,
+                    paramAnns, message, values, ori);
+        } catch (ClientErrorException e) {
+            if (parameter.getDefaultValue() == null && ori != null) {
+                parameter.setDefaultValue(ori.getDefaultParameterValue());
+            }
+            throw ExceptionUtils.toParamException(parameter, e);
+        }
+    }
+
+    private static Object createHttpParameterValueInternal(Parameter parameter,
                                             Class<?> parameterClass,
                                             Type genericParam,
                                             Annotation[] paramAnns,
